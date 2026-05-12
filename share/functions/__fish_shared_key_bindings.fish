@@ -66,6 +66,7 @@ function __fish_shared_key_bindings -d "Bindings shared between emacs and vi mod
     bind --preset $argv alt-. history-token-search-backward
 
     bind --preset $argv alt-l __fish_list_current_token
+    bind --preset $argv alt-a angler-ai
     bind --preset $argv alt-o __fish_preview_current_file
     bind --preset $argv alt-w __fish_whatis_current_token
     bind --preset $argv ctrl-l \

@@ -24,6 +24,9 @@ use super::{
 };
 use crate::{
     abbrs::{self, abbrs_match},
+    angler_ai::{
+        self, Config as AnglerAiConfig, Session as AnglerAiSession, State as AnglerAiState,
+    },
     ast::{self, Kind, is_same_node},
     builtins::shared::{ErrorCode, STATUS_CMD_ERROR, STATUS_CMD_OK},
     common::{get_program_name, shell_modes},
@@ -123,7 +126,7 @@ use fish_wcstringutil::{
     join_strings, string_prefixes_string, string_prefixes_string_case_insensitive,
     string_prefixes_string_maybe_case_insensitive,
 };
-use fish_widestring::{ELLIPSIS_CHAR, UTF8_BOM_WCHAR, bytes2wcstring};
+use fish_widestring::{ELLIPSIS_CHAR, UTF8_BOM_WCHAR, bytes2wcstring, wcs2bytes};
 use libc::{
     _POSIX_VDISABLE, EIO, EISDIR, ENOTTY, ESRCH, O_NONBLOCK, O_RDONLY, SIGINT, STDERR_FILENO,
     STDIN_FILENO, STDOUT_FILENO, VMIN, VQUIT, VSUSP, VTIME, c_char,
@@ -740,6 +743,9 @@ pub struct ReaderData {
     in_flight_highlight_request: WString,
     in_flight_autosuggest_request: WString,
 
+    /// State for the built-in Angler AI assistant.
+    angler_ai: AnglerAiSession,
+
     rls: Option<ReadlineLoopState>,
 
     /// Support for I/O threads associated with this reader state, including debouncers.
@@ -784,6 +790,10 @@ impl<'a> Reader<'a> {
         }
         if let Some(cb) = self.debouncers.history_pager.take_result() {
             cb(self);
+        }
+        if let Some(state) = self.debouncers.angler_ai.take_result() {
+            self.angler_ai.set_state(state);
+            self.schedule_prompt_repaint();
         }
     }
 }
@@ -1417,6 +1427,7 @@ impl ReaderData {
             last_jump_precision: JumpPrecision::To,
             in_flight_highlight_request: Default::default(),
             in_flight_autosuggest_request: Default::default(),
+            angler_ai: AnglerAiSession::new(),
             rls: None,
             debouncers: Debouncers::new(),
         }))
@@ -2656,7 +2667,7 @@ impl<'a> Reader<'a> {
             self.clear_pager();
         }
 
-        if EXIT_STATE.load(Ordering::Relaxed) != ExitState::FinishedHandlers as _ {
+        if EXIT_STATE.load(Ordering::Relaxed) != ExitState::FinishedHandlers as u8 {
             // The order of the two conditions below is important. Try to restore the mode
             // in all cases, but only complain if interactive.
             if let Some(old_modes) = old_modes {
@@ -3022,10 +3033,133 @@ impl<'a> Reader<'a> {
         self.data.push_edit(elt, edit);
     }
 
+    fn get_angler_ai_var(&self, name: &wstr) -> Option<WString> {
+        self.vars()
+            .get_unless_empty(name)
+            .map(|var| var.as_string())
+    }
+
+    fn angler_ai_config(&self) -> Result<AnglerAiConfig, WString> {
+        AnglerAiConfig::new(
+            self.get_angler_ai_var(L!("ANGLER_AI_BASE_URL")),
+            self.get_angler_ai_var(L!("ANGLER_AI_KEY")),
+            self.get_angler_ai_var(L!("ANGLER_AI_MODEL")),
+        )
+    }
+
+    fn write_angler_ai_panel(&self, body: &wstr, footer: &wstr) {
+        let mut text = L!("\n").to_owned();
+        text.push_utfstr(L!("| angler ai\n"));
+        for line in body.split('\n') {
+            text.push_utfstr(L!("| "));
+            text.push_utfstr(line);
+            text.push('\n');
+        }
+        text.push_utfstr(L!("| "));
+        text.push_utfstr(footer);
+        text.push('\n');
+        let _ = write_loop(&STDOUT_FILENO, &wcs2bytes(&text));
+    }
+
+    fn wait_for_angler_ai_close(&mut self, allow_insert: bool, result: &wstr) {
+        loop {
+            match self.read_char() {
+                CharEvent::Readline(evt) if allow_insert && evt.cmd == ReadlineCmd::Execute => {
+                    self.insert_string(EditableLineTag::Commandline, result);
+                    self.update_buff_pos(
+                        EditableLineTag::Commandline,
+                        Some(self.command_line_len()),
+                    );
+                    break;
+                }
+                CharEvent::Readline(evt)
+                    if matches!(
+                        evt.cmd,
+                        ReadlineCmd::Cancel
+                            | ReadlineCmd::CancelCommandline
+                            | ReadlineCmd::ClearCommandline
+                            | ReadlineCmd::Execute
+                    ) =>
+                {
+                    break;
+                }
+                CharEvent::QueryResult(QueryResultEvent::Interrupted)
+                | CharEvent::Implicit(ImplicitEvent::CheckExit) => break,
+                _ => {}
+            }
+        }
+    }
+
+    fn handle_angler_ai(&mut self) {
+        match self.angler_ai.state().clone() {
+            AnglerAiState::Ready(result) if !result.is_empty() => {
+                self.write_angler_ai_panel(&result, L!("[Enter] insert    [Esc/Ctrl-C] close"));
+                self.wait_for_angler_ai_close(true, &result);
+                self.angler_ai.reset();
+            }
+            AnglerAiState::Ready(_) => {
+                self.write_angler_ai_panel(L!("No suggestion returned."), L!("[Esc/Ctrl-C] close"));
+                self.wait_for_angler_ai_close(false, L!(""));
+                self.angler_ai.reset();
+            }
+            AnglerAiState::Error(err) => {
+                self.write_angler_ai_panel(&err, L!("[Esc/Ctrl-C] close"));
+                self.wait_for_angler_ai_close(false, L!(""));
+                self.angler_ai.reset();
+            }
+            AnglerAiState::Loading => {
+                self.write_angler_ai_panel(L!("thinking..."), L!("waiting"));
+                self.wait_for_angler_ai_close(false, L!(""));
+            }
+            AnglerAiState::Idle => {
+                if self.command_line.is_empty() {
+                    self.flash(0..0);
+                    return;
+                }
+
+                let config = match self.angler_ai_config() {
+                    Ok(config) => config,
+                    Err(err) => {
+                        self.angler_ai.set_state(AnglerAiState::Error(err));
+                        self.schedule_prompt_repaint();
+                        return;
+                    }
+                };
+                let prompt = self.command_line.text().to_owned();
+                self.clear_pager();
+                self.autosuggestion.clear();
+                let command_line_len = self.command_line_len();
+                self.replace_substring(
+                    EditableLineTag::Commandline,
+                    0..command_line_len,
+                    WString::new(),
+                );
+                self.update_buff_pos(EditableLineTag::Commandline, Some(0));
+                self.angler_ai.set_loading();
+                self.schedule_prompt_repaint();
+
+                let performer = move || angler_ai::request(config, &prompt);
+                self.debouncers.angler_ai.perform(performer);
+                if self.is_repaint_needed(None) {
+                    self.layout_and_repaint(L!("angler ai"));
+                }
+                return;
+            }
+        }
+
+        self.screen
+            .reset_abandoning_line(Some(termsize_last().width()));
+        self.screen.reset_line(true);
+        self.layout_and_repaint(L!("angler ai done"));
+    }
+
     fn handle_readline_command(&mut self, c: ReadlineCmd) {
         #[allow(non_camel_case_types)]
         type rl = ReadlineCmd;
         match c {
+            rl::AnglerAi => {
+                self.handle_angler_ai();
+            }
             rl::BeginningOfLine => {
                 // Go to beginning of line.
                 loop {
@@ -5176,6 +5310,9 @@ impl<'a> Reader<'a> {
                     &exec_prompt_cmd(self.parser, prompt_cmd, final_prompt),
                     '\n',
                 );
+                let angler_ai_prompt_prefix = angler_ai::prompt_prefix(self.angler_ai.state());
+                self.left_prompt_buff
+                    .insert_utfstr(0, angler_ai_prompt_prefix);
 
                 // Support the SHELL_PROMPT_PREFIX and SHELL_PROMPT_SUFFIX environment
                 // variables as standardized by systemd v257. Prepend the prefix and

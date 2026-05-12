@@ -14,6 +14,7 @@ pub mod common;
 pub mod wutil;
 
 pub mod abbrs;
+pub mod angler_ai;
 pub mod ast;
 pub mod autoload;
 pub mod builtins;

@@ -2,6 +2,7 @@
 //! which might block, such as file I/O or completions.
 
 use super::{Reader, reader};
+use crate::angler_ai;
 use crate::fd_monitor::FdEventSignaller;
 use crate::threads::ThreadPool;
 use crate::threads::debounce::Debounce;
@@ -26,6 +27,8 @@ pub(super) struct Debouncers {
     // Debounce history pager computations. This holds a callback, not a single value,
     // both to demonstrate the technique and because the callback can capture local variables.
     pub history_pager: Debounce<Callback>,
+    // Background Angler AI requests.
+    pub angler_ai: Debounce<angler_ai::State>,
 }
 
 impl Debouncers {
@@ -37,10 +40,12 @@ impl Debouncers {
         const HIGHLIGHT_TIMEOUT: Duration = Duration::from_millis(500);
         const HISTORY_PAGER_TIMEOUT: Duration = Duration::from_millis(500);
         const AUTOSUGGEST_TIMEOUT: Duration = Duration::from_millis(500);
+        const ANGLER_AI_TIMEOUT: Duration = Duration::from_secs(60);
         Self {
             autosuggestions: Debounce::new(&pool, &event_signaller, AUTOSUGGEST_TIMEOUT),
             highlight: Debounce::new(&pool, &event_signaller, HIGHLIGHT_TIMEOUT),
             history_pager: Debounce::new(&pool, &event_signaller, HISTORY_PAGER_TIMEOUT),
+            angler_ai: Debounce::new(&pool, &event_signaller, ANGLER_AI_TIMEOUT),
             event_signaller,
         }
     }

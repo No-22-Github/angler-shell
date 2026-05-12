@@ -45,6 +45,7 @@ pub enum CharInputStyle {
 #[repr(u8)]
 pub enum ReadlineCmd {
     BeginningOfLine,
+    AnglerAi,
     EndOfLine,
     ForwardChar,
     BackwardChar,

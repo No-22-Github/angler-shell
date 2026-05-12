@@ -110,6 +110,7 @@ const fn make_md(name: &'static wstr, code: ReadlineCmd) -> InputFunctionMetadat
 const INPUT_FUNCTION_METADATA: &[InputFunctionMetadata] = &[
     make_md(L!("accept-autosuggestion"), ReadlineCmd::AcceptAutosuggestion),
     make_md(L!("and"), ReadlineCmd::FuncAnd),
+    make_md(L!("angler-ai"), ReadlineCmd::AnglerAi),
     make_md(L!("backward-bigword"), ReadlineCmd::BackwardBigword),
     make_md(L!("backward-bigword-end"), ReadlineCmd::BackwardBigwordEnd),
     make_md(L!("backward-char"), ReadlineCmd::BackwardChar),
