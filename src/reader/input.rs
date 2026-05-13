@@ -59,7 +59,9 @@ impl<'a> InputEventQueuer for Reader<'a> {
     fn ioport_notified(&mut self) {
         // Our iothread signaller was posted, indicating some debouncer has a new result.
         self.debouncers.event_signaller.try_consume();
-        self.service_debounced_results();
+        if self.service_debounced_results() {
+            self.push_front(CharEvent::from_readline(ReadlineCmd::AnglerAi));
+        }
     }
 
     fn paste_start_buffering(&mut self) {
