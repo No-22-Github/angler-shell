@@ -1,10 +1,19 @@
 fish ?.?.? (released ???)
 =========================
 
+Deprecations and removed features
+---------------------------------
+- `--command` and `--path` options in `complete` no longer unescape their value.
+
 Interactive improvements
 ------------------------
 - On the first run after upgrading from an older version, fish will try harder to check if the current theme matches a historical default, in which case fish won't create ``~/.config/fish/conf.d/fish_frozen_theme.fish``.
   This means that on systems where fish version 3.x was installed originally, the update will avoid creating that file (:issue:`12725`).
+
+Regression fixes:
+-----------------
+- (from 4.4) Vi mode ``x`` in :doc:`builtin read <cmds/read>` (:issue:`12724`).
+- (from 4.3.3) Repeated tab would sometimes insert smartcase completions redundantly.
 
 fish 4.7.1 (released May 08, 2026)
 ==================================
@@ -3375,7 +3384,7 @@ For distributors and developers
    standard sh instead.
 -  The ``hostname`` command is no longer required for fish to operate.
 
-–
+-
 
 fish 2.7.1 (released December 23, 2017)
 =======================================
@@ -3387,7 +3396,7 @@ session (:issue:`4521`).
 If you are upgrading from version 2.6.0 or before, please also review
 the release notes for 2.7.0 and 2.7b1 (included below).
 
-–
+-
 
 fish 2.7.0 (released November 23, 2017)
 =======================================
@@ -3399,7 +3408,7 @@ from version 2.6.0 or before, please also review the release notes for
 Xcode builds and macOS packages could not be produced with 2.7b1, but
 this is fixed in 2.7.0.
 
-–
+-
 
 fish 2.7b1 (released October 31, 2017)
 ======================================
@@ -4100,7 +4109,7 @@ Other notable fixes and improvements
 -  Add support for bright colors (:issue:`1464`)
 -  Allow Ctrl-J (``\cj``) to be bound separately from Ctrl-M
    (``\cm``) (:issue:`217`)
--  psub now has a “-s”/“–suffix” option to name the temporary file with
+-  psub now has a “-s”/“-suffix” option to name the temporary file with
    that suffix
 -  Enable 24-bit colors on select terminals (:issue:`2495`)
 -  Support for SVN status in the prompt (:issue:`2582`)
@@ -4490,7 +4499,7 @@ Other Notable Fixes
 -  xsel is no longer built as part of fish. It will still be invoked if
    installed separately :issue:`633`
 -  \__fish_filter_mime no longer spews :issue:`628`
--  The –no-execute option to fish no longer falls over when reaching the
+-  The -no-execute option to fish no longer falls over when reaching the
    end of a block :issue:`624`
 -  fish_config knows how to find fish even if it’s not in the $PATH :issue:`621`
 -  A leading space now prevents writing to history, as is done in bash

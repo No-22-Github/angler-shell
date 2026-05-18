@@ -4376,7 +4376,7 @@ msgstr ""
 msgid "(required) the path to the CSV file that defines the records to upsert"
 msgstr ""
 
-msgid "(required) the root directory containing the Metadata API–formatted metadata"
+msgid "(required) the root directory containing the Metadata API-formatted metadata"
 msgstr ""
 
 msgid "(required) the sObject type of the records you want to upsert"
@@ -20180,6 +20180,9 @@ msgstr ""
 msgid "Do not recurse unless -depth is specified"
 msgstr ""
 
+msgid "Do not recursively fetch submodules"
+msgstr ""
+
 msgid "Do not redirect output to a pager"
 msgstr ""
 
@@ -20631,6 +20634,9 @@ msgid "Do not try to use the GnuPG-Agent"
 msgstr ""
 
 msgid "Do not update index or working tree"
+msgstr ""
+
+msgid "Do not update references"
 msgstr ""
 
 msgid "Do not update the cache in vendor/cache with the newly bundled gems"
@@ -48590,6 +48596,9 @@ msgstr ""
 msgid "Recursively expand directory"
 msgstr ""
 
+msgid "Recursively fetch submodules"
+msgstr ""
+
 msgid "Recursively list ports depending on given port"
 msgstr ""
 
@@ -51890,6 +51899,9 @@ msgstr ""
 msgid "Revokes an authentication token"
 msgstr ""
 
+msgid "Rewrite a commit message"
+msgstr ""
+
 msgid "Rewrite all not-found requests to `index.html`"
 msgstr ""
 
@@ -51900,6 +51912,9 @@ msgid "Rewrite config files to canonical format"
 msgstr ""
 
 msgid "Rewrite file in FORMAT"
+msgstr ""
+
+msgid "Rewrite history"
 msgstr ""
 
 msgid "Rewrite rule (e.g., 'a[b:len(a)] -> a[b:]')"
@@ -63975,6 +63990,9 @@ msgid "Split output"
 msgstr ""
 
 msgid "Split stdout and stderr in test logs"
+msgstr ""
+
+msgid "Split up a commit"
 msgstr ""
 
 msgid "Spoof MAC address"
@@ -77612,7 +77630,7 @@ msgstr ""
 msgid "output diffstat-style summary of changes"
 msgstr ""
 
-msgid "output directory to store the Metadata API–formatted files in"
+msgid "output directory to store the Metadata API-formatted files in"
 msgstr ""
 
 msgid "output encoding"
@@ -80036,7 +80054,7 @@ msgstr ""
 msgid "the org to list the apps for"
 msgstr ""
 
-msgid "the output directory to store the source–formatted files"
+msgid "the output directory to store the source-formatted files"
 msgstr ""
 
 msgid "the streaming client socket timeout (in minutes)"

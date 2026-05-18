@@ -738,7 +738,7 @@ See the documentation for :doc:`funced <cmds/funced>` and :doc:`funcsave <cmds/f
 Universal Variables
 -------------------
 
-A universal variable is a variable whose value is shared across all instances of fish, now and in the future – even after a reboot. You can make a variable universal with ``set -U``::
+A universal variable is a variable whose value is shared across all instances of fish, now and in the future - even after a reboot. You can make a variable universal with ``set -U``::
 
     > set -U EDITOR vim
 

@@ -235,7 +235,7 @@ fn handle_fish_history_change(vars: &EnvStack) {
     reader_change_history(history_id);
 }
 
-fn handle_fish_cursor_selection_mode_change(vars: &EnvStack) {
+pub fn handle_fish_cursor_selection_mode_change(vars: &EnvStack) {
     use crate::reader::CursorSelectionMode;
 
     let inclusive = vars
@@ -252,7 +252,7 @@ fn handle_fish_cursor_selection_mode_change(vars: &EnvStack) {
     reader_change_cursor_selection_mode(mode);
 }
 
-fn handle_fish_cursor_end_mode_change(vars: &EnvStack) {
+pub fn handle_fish_cursor_end_mode_change(vars: &EnvStack) {
     use crate::reader::CursorEndMode;
 
     let inclusive = vars

@@ -298,7 +298,10 @@ function fish_git_prompt --description "Prompt function for Git"
                 test "$untracked" = true; and set opt -unormal
                 # Don't use `--ignored=no`; it was introduced in Git 2.16, from January 2018
                 # Ignored files are omitted by default
-                set -l stat (command git -c core.fsmonitor= status --porcelain -z $opt | string split0)
+                # Renames and copies in porcelain -z output have an extra NUL-delimited
+                # field for the source path. Filter to entries starting with a valid
+                # two-char status code followed by a space to skip those bare paths.
+                set -l stat (__fish_git_prompt_status_porcelain_modulo_rename_source $opt)
 
                 set dirtystate (string match -qr '^.[ACDMRTU]' -- $stat; and echo 1)
                 if test -n "$sha"
@@ -404,6 +407,20 @@ end
 
 ### helper functions
 
+function __fish_git_prompt_status_porcelain_modulo_rename_source
+    set -l skip false
+    for line in (git -c core.fsmonitor= status --porcelain -z $argv | string split0)
+        if $skip
+            set skip false
+            continue
+        end
+        printf %s\n $line
+        if string match -rq -- ^[RC] $line
+            set skip true
+        end
+    end
+end
+
 function __fish_git_prompt_informative_status
     set -l stashstate 0
     set -l stashfile "$argv[1]/logs/refs/stash"
@@ -421,7 +438,10 @@ function __fish_git_prompt_informative_status
 
     # Use git status --porcelain.
     # The v2 format is better, but we don't actually care in this case.
-    set -l stats (string sub -l 2 (git -c core.fsmonitor= status --porcelain -z $untr | string split0))
+    # Renames and copies in porcelain -z output have an extra NUL-delimited
+    # field for the source path. Filter to entries starting with a valid
+    # two-char status code followed by a space to skip those bare paths.
+    set -l stats (__fish_git_prompt_status_porcelain_modulo_rename_source $untr)
     set -l invalidstate (string match -r '^UU' $stats | count)
     set -l stagedstate (string match -r '^[ACDMRT].' $stats | count)
     set -l dirtystate (string match -r '^.[ACDMRT]' $stats | count)

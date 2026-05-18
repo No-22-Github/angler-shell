@@ -194,6 +194,7 @@ fish_for_bash_users#special-variables
 fish_for_bash_users#string-manipulation
 fish_for_bash_users#subshells
 fish_for_bash_users#test-test
+fish_for_bash_users#variable-defaults-my-variable-default-value
 fish_for_bash_users#variables
 fish_for_bash_users#wildcards-globs
 index

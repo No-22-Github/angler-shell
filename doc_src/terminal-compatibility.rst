@@ -333,7 +333,7 @@ Unicode Codepoints
 
 By default, fish outputs the following non-ASCII characters::
 
-    × ► ¶ ⏎ • ● … μ – ’ ‘ “ ” ← → ↑ ↓
+    × ► ¶ ⏎ • ● … μ ’ ‘ “ ”
 
 as well as control pictures (U+2400 through U+241F),
-and locale-specific ones in :ref:`translated strings <variables-locale>`.
+and locale-specific ones in :ref:`translated messages <variables-locale>`.

@@ -31,7 +31,7 @@ macOS
 
 fish can be installed:
 
--  using `Homebrew <http://brew.sh/>`__: ``brew install fish``
+-  using `Homebrew <https://brew.sh/>`__: ``brew install fish``
 -  using `MacPorts <https://www.macports.org/>`__:
    ``sudo port install fish``
 -  using the `installer from fishshell.com <https://fishshell.com/>`__
@@ -221,5 +221,5 @@ There is also a fish tag on Stackoverflow, but it is typically a poor fit.
 Found a bug? Have an awesome idea? Please `open an
 issue <https://github.com/fish-shell/fish-shell/issues/new>`__.
 
-.. |Build Status| image:: https://github.com/fish-shell/fish-shell/workflows/make%20test/badge.svg
-   :target: https://github.com/fish-shell/fish-shell/actions
+.. |Build Status| image:: https://github.com/fish-shell/fish-shell/actions/workflows/test.yml/badge.svg
+   :target: https://github.com/fish-shell/fish-shell/actions/workflows/test.yml

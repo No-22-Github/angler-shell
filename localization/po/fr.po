@@ -4502,7 +4502,7 @@ msgstr ""
 msgid "(required) the path to the CSV file that defines the records to upsert"
 msgstr ""
 
-msgid "(required) the root directory containing the Metadata API–formatted metadata"
+msgid "(required) the root directory containing the Metadata API-formatted metadata"
 msgstr ""
 
 msgid "(required) the sObject type of the records you want to upsert"
@@ -20306,6 +20306,9 @@ msgstr "Ne pas opérer récursivement dans les sous-projets"
 msgid "Do not recurse unless -depth is specified"
 msgstr "Ne pas faire de récursion sauf si -depth est spécifié"
 
+msgid "Do not recursively fetch submodules"
+msgstr ""
+
 msgid "Do not redirect output to a pager"
 msgstr ""
 
@@ -20757,6 +20760,9 @@ msgid "Do not try to use the GnuPG-Agent"
 msgstr "Ne pas essayer d’utiliser l’agent GnuPG"
 
 msgid "Do not update index or working tree"
+msgstr ""
+
+msgid "Do not update references"
 msgstr ""
 
 msgid "Do not update the cache in vendor/cache with the newly bundled gems"
@@ -47805,7 +47811,7 @@ msgid "Quiet output (default=verbose)"
 msgstr "Sortie silencieuse (verbeuse par défaut)"
 
 msgid "Quiet output - only show errors"
-msgstr "Sortie silencieuse – n’afficher que les erreurs"
+msgstr "Sortie silencieuse - n’afficher que les erreurs"
 
 msgid "Quiet some status messages"
 msgstr ""
@@ -48714,6 +48720,9 @@ msgid "Recursively destroy later snapshot, bookmarks and clones"
 msgstr "Détruire récursivement les instantanés, marque-pages et clones postérieurs"
 
 msgid "Recursively expand directory"
+msgstr ""
+
+msgid "Recursively fetch submodules"
 msgstr ""
 
 msgid "Recursively list ports depending on given port"
@@ -51996,7 +52005,7 @@ msgid "Review the dpec file before creating a .rpm"
 msgstr ""
 
 msgid "Revision - symbolic or numeric."
-msgstr "Révision – symbolique ou numérique"
+msgstr "Révision - symbolique ou numérique"
 
 msgid "Revoke access from users"
 msgstr ""
@@ -52016,6 +52025,9 @@ msgstr ""
 msgid "Revokes an authentication token"
 msgstr ""
 
+msgid "Rewrite a commit message"
+msgstr ""
+
 msgid "Rewrite all not-found requests to `index.html`"
 msgstr ""
 
@@ -52026,6 +52038,9 @@ msgid "Rewrite config files to canonical format"
 msgstr ""
 
 msgid "Rewrite file in FORMAT"
+msgstr ""
+
+msgid "Rewrite history"
 msgstr ""
 
 msgid "Rewrite rule (e.g., 'a[b:len(a)] -> a[b:]')"
@@ -57858,7 +57873,7 @@ msgid "Short name or spec of CompUnit::Repository to install to"
 msgstr ""
 
 msgid "Short patch - one liner per file."
-msgstr "Patch concis – une ligne par fichier"
+msgstr "Patch concis - une ligne par fichier"
 
 msgid "Short title for start of progress meter"
 msgstr ""
@@ -64101,6 +64116,9 @@ msgid "Split output"
 msgstr ""
 
 msgid "Split stdout and stderr in test logs"
+msgstr ""
+
+msgid "Split up a commit"
 msgstr ""
 
 msgid "Spoof MAC address"
@@ -77738,7 +77756,7 @@ msgstr "Afficher les variables de configuration au format shell"
 msgid "output diffstat-style summary of changes"
 msgstr "Afficher un résumé des modifications à la diffstat"
 
-msgid "output directory to store the Metadata API–formatted files in"
+msgid "output directory to store the Metadata API-formatted files in"
 msgstr ""
 
 msgid "output encoding"
@@ -80162,7 +80180,7 @@ msgstr "Nombre de lignes à afficher"
 msgid "the org to list the apps for"
 msgstr "Spécifier l’organisation dont les applications sont à lister"
 
-msgid "the output directory to store the source–formatted files"
+msgid "the output directory to store the source-formatted files"
 msgstr ""
 
 msgid "the streaming client socket timeout (in minutes)"

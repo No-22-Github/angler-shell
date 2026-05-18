@@ -157,6 +157,8 @@ function __fish_help_describe -a help_item
             return
         case fish_for_bash_users#test-test
             return
+        case fish_for_bash_users#variable-defaults-my-variable-default-value
+            return
         case fish_for_bash_users#variables
             return
         case fish_for_bash_users#wildcards-globs
