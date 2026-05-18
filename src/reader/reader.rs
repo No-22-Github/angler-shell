@@ -3050,6 +3050,7 @@ impl<'a> Reader<'a> {
             self.get_angler_ai_var(L!("ANGLER_AI_BASE_URL")),
             self.get_angler_ai_var(L!("ANGLER_AI_KEY")),
             self.get_angler_ai_var(L!("ANGLER_AI_MODEL")),
+            self.get_angler_ai_var(L!("ANGLER_AI_PROVIDER")),
         )
     }
 
