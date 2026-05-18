@@ -779,10 +779,9 @@ impl<'a> Reader<'a> {
         self.parser.vars()
     }
 
-    pub(super) fn service_debounced_results(&mut self) -> bool {
+    pub(super) fn service_debounced_results(&mut self) {
         // Some iothread operation completed, indicating a debouncer has a new result.
         // Check all of them.
-        let mut angler_ai_ready = false;
         if let Some(r) = self.debouncers.autosuggestions.take_result() {
             self.autosuggest_completed(r);
         }
@@ -795,9 +794,7 @@ impl<'a> Reader<'a> {
         if let Some(state) = self.debouncers.angler_ai.take_result() {
             self.angler_ai.set_state(state);
             self.schedule_prompt_repaint();
-            angler_ai_ready = true;
         }
-        angler_ai_ready
     }
 }
 
@@ -3069,10 +3066,10 @@ impl<'a> Reader<'a> {
         loop {
             match self.read_char() {
                 CharEvent::Readline(evt) if allow_insert && evt.cmd == ReadlineCmd::Execute => {
-                    self.set_command_line_and_position(
+                    self.insert_string(EditableLineTag::Commandline, result);
+                    self.update_buff_pos(
                         EditableLineTag::Commandline,
-                        result.to_owned(),
-                        result.len(),
+                        Some(self.command_line_len()),
                     );
                     break;
                 }
@@ -5314,6 +5311,9 @@ impl<'a> Reader<'a> {
                     &exec_prompt_cmd(self.parser, prompt_cmd, final_prompt),
                     '\n',
                 );
+                let angler_ai_prompt_prefix = angler_ai::prompt_prefix(self.angler_ai.state());
+                self.left_prompt_buff
+                    .insert_utfstr(0, angler_ai_prompt_prefix);
 
                 // Support the SHELL_PROMPT_PREFIX and SHELL_PROMPT_SUFFIX environment
                 // variables as standardized by systemd v257. Prepend the prefix and
@@ -5338,13 +5338,6 @@ impl<'a> Reader<'a> {
                     &self.data.conf.right_prompt_cmd,
                     final_prompt,
                 ));
-            }
-            let angler_ai_prompt_prefix = angler_ai::prompt_prefix(self.angler_ai.state());
-            if self.right_prompt_buff.is_empty() {
-                self.right_prompt_buff = angler_ai_prompt_prefix.to_owned();
-            } else {
-                self.right_prompt_buff.push_utfstr(L!("  "));
-                self.right_prompt_buff.push_utfstr(angler_ai_prompt_prefix);
             }
         }
 

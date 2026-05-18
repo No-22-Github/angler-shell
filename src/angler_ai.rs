@@ -97,10 +97,10 @@ pub fn request(config: Config, prompt: &wstr) -> State {
 
 pub fn prompt_prefix(state: &State) -> &'static wstr {
     match state {
-        State::Idle => L!("🟢 🕊️ "),
-        State::Loading => L!("✳️ 🕊️ "),
-        State::Ready(_) => L!("✅ 🕊️ "),
-        State::Error(_) => L!("❗ 🕊️ "),
+        State::Idle => L!("· AI "),
+        State::Loading => L!("⠸ AI "),
+        State::Ready(_) => L!("✓ AI "),
+        State::Error(_) => L!("! AI "),
     }
 }
 
@@ -204,6 +204,7 @@ fn request_rwkv_batch(
     let body = json!({
         "contents": prompts,
         "max_tokens": 1024,
+        "stop_tokens": ["```", "\nUser:"],
         "temperature": 1,
         "top_k": 20,
         "top_p": 0,
