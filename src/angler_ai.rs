@@ -1,6 +1,7 @@
 use crate::prelude::*;
 use fish_widestring::{WString, wcs2bytes};
 
+mod context;
 mod http;
 mod openai;
 mod rwkv;
@@ -105,19 +106,24 @@ pub fn prompt_prefix(state: &State) -> &'static wstr {
     }
 }
 
-pub(crate) fn system_prompt() -> &'static str {
-    concat!(
-        "You are Angler AI, an assistant embedded in an interactive fish shell.\n",
-        "The user wrote a natural-language request or a partial shell command.\n",
-        "Convert it into one safe fish shell command to insert into the command line.\n\n",
-        "Rules:\n",
-        "- Output only the command to insert.\n",
-        "- Do not explain.\n",
-        "- Do not wrap the command in Markdown.\n",
-        "- Do not execute anything.\n",
-        "- Use fish-compatible syntax, not bash-only syntax.\n",
-        "- Prefer non-destructive commands when possible.\n",
-        "- If the request is ambiguous or unsafe, output a commented fish command starting with '# ' that asks for clarification.\n"
+pub(crate) fn system_prompt() -> String {
+    let context = context::ShellContext::capture().as_prompt_section();
+    format!(
+        "{}\n\n{}",
+        concat!(
+            "You are Angler AI, an assistant embedded in an interactive fish shell.\n",
+            "The user wrote a natural-language request or a partial shell command.\n",
+            "Convert it into one safe fish shell command to insert into the command line.\n\n",
+            "Rules:\n",
+            "- Output only the command to insert.\n",
+            "- Do not explain.\n",
+            "- Do not wrap the command in Markdown.\n",
+            "- Do not execute anything.\n",
+            "- Use fish-compatible syntax, not bash-only syntax.\n",
+            "- Prefer non-destructive commands when possible.\n",
+            "- If the request is ambiguous or unsafe, output a commented fish command starting with '# ' that asks for clarification.\n"
+        ),
+        context
     )
 }
 

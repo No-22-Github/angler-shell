@@ -1,4 +1,4 @@
-use super::{Config, http::post_json, http::trim_response_content};
+use super::{Config, context::ShellContext, http::post_json, http::trim_response_content};
 use crate::prelude::*;
 use fish_widestring::{WString, wcs2bytes};
 use serde_json::{Value, json};
@@ -14,6 +14,7 @@ pub(crate) fn request(config: Config, prompt: &wstr) -> Result<WString, WString>
 }
 
 fn prompt_for_completion(prompt: &str) -> String {
+    let context = ShellContext::capture().as_prompt_section();
     format!(
         concat!(
             "System: You are a fish shell assistant.Format:```fish\\nCOMMANDS\\n```\n",
@@ -25,6 +26,7 @@ fn prompt_for_completion(prompt: &str) -> String {
             "* No markdown\n",
             "* Use valid fish shell syntax\n",
             "* Keep commands minimal and efficient.\n\n",
+            "{}\n\n",
             "User: 查看当前目录大小\n\n",
             "Assistant: ```fish\n",
             "du -sh .\n",
@@ -44,7 +46,7 @@ fn prompt_for_completion(prompt: &str) -> String {
             "User: {}\n\n",
             "Assistant: ```fish\n"
         ),
-        prompt
+        context, prompt
     )
 }
 
@@ -132,6 +134,7 @@ mod tests {
     fn prompt_ends_with_assistant_fish_prefix() {
         let prompt = prompt_for_completion("查看当前内存占用");
         assert!(prompt.ends_with("Assistant: ```fish\n"));
+        assert!(prompt.contains("Environment:\n"));
         assert!(prompt.contains("User: 查看当前内存占用\n\nAssistant: ```fish\n"));
     }
 
