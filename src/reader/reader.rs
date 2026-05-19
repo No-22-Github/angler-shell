@@ -750,7 +750,7 @@ pub struct ReaderData {
     in_flight_autosuggest_request: WString,
 
     /// State for the built-in Angler AI assistant.
-    angler_ai: AnglerAiSession,
+    pub(super) angler_ai: AnglerAiSession,
 
     rls: Option<ReadlineLoopState>,
 

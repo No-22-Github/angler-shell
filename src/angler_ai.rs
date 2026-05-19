@@ -1,5 +1,9 @@
 use crate::prelude::*;
 use fish_widestring::{WString, wcs2bytes};
+use std::{
+    sync::LazyLock,
+    time::{Duration, Instant},
+};
 
 mod context;
 mod http;
@@ -68,6 +72,20 @@ pub struct Session {
     state: State,
 }
 
+pub const SPINNER_INTERVAL: Duration = Duration::from_millis(100);
+const SPINNER_FRAMES: [&wstr; 10] = [
+    L!("⠋ "),
+    L!("⠙ "),
+    L!("⠹ "),
+    L!("⠸ "),
+    L!("⠼ "),
+    L!("⠴ "),
+    L!("⠦ "),
+    L!("⠧ "),
+    L!("⠇ "),
+    L!("⠏ "),
+];
+
 impl Session {
     pub fn new() -> Self {
         Self { state: State::Idle }
@@ -99,10 +117,16 @@ pub fn request(config: Config, prompt: &wstr) -> State {
 
 pub fn prompt_prefix(state: &State) -> &'static wstr {
     match state {
-        State::Idle => L!("· AI "),
-        State::Loading => L!("⠸ AI "),
-        State::Ready(_) => L!("✓ AI "),
-        State::Error(_) => L!("! AI "),
+        State::Idle => L!("· "),
+        State::Loading => {
+            static SPINNER_STARTED: LazyLock<Instant> = LazyLock::new(Instant::now);
+            let frame = (SPINNER_STARTED.elapsed().as_millis() / SPINNER_INTERVAL.as_millis())
+                as usize
+                % SPINNER_FRAMES.len();
+            SPINNER_FRAMES[frame]
+        }
+        State::Ready(_) => L!("✓ "),
+        State::Error(_) => L!("! "),
     }
 }
 

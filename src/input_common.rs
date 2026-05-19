@@ -780,11 +780,7 @@ pub trait InputEventQueuer {
             match next_input_event(
                 self.get_in_fd(),
                 self.get_ioport_fd(),
-                if self.is_blocked_querying() {
-                    Timeout::Duration(self.get_input_data().blocking_query_timeout.unwrap())
-                } else {
-                    Timeout::Forever
-                },
+                self.select_timeout(),
             ) {
                 InputEventTrigger::Eof => {
                     return CharEvent::Implicit(ImplicitEvent::Eof);
@@ -899,7 +895,7 @@ pub trait InputEventQueuer {
                     return key_evt;
                 }
                 InputEventTrigger::TimeoutElapsed => {
-                    return CharEvent::QueryResult(QueryResultEvent::Timeout);
+                    return self.timeout_elapsed();
                 }
             }
         }
@@ -1495,6 +1491,20 @@ pub trait InputEventQueuer {
     /// Return the fd of the IO port, or -1 if none.
     fn get_ioport_fd(&self) -> RawFd {
         -1
+    }
+
+    /// Return how long the next select should wait before producing a timeout event.
+    fn select_timeout(&self) -> Timeout {
+        if self.is_blocked_querying() {
+            Timeout::Duration(self.get_input_data().blocking_query_timeout.unwrap())
+        } else {
+            Timeout::Forever
+        }
+    }
+
+    /// Produce an event after select times out.
+    fn timeout_elapsed(&mut self) -> CharEvent {
+        CharEvent::QueryResult(QueryResultEvent::Timeout)
     }
 
     /// Return the input data. This is to be implemented by the concrete type.

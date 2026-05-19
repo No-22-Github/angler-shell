@@ -1,7 +1,9 @@
 //! Reader implementation of InputEventQueuer.
 use super::{Reader, reader_reading_interrupted, reader_schedule_prompt_repaint};
 use crate::{
+    angler_ai::{self, State as AnglerAiState},
     event,
+    fd_readable_set::Timeout,
     input::input_get_bind_mode,
     input_common::{CharEvent, InputData, InputEventQueuer, ReadlineCmd},
     proc::job_reap,
@@ -22,6 +24,24 @@ impl<'a> InputEventQueuer for Reader<'a> {
 
     fn get_ioport_fd(&self) -> RawFd {
         self.debouncers.event_signaller_read_fd()
+    }
+
+    fn select_timeout(&self) -> Timeout {
+        if self.is_blocked_querying() {
+            Timeout::Duration(self.input_data.blocking_query_timeout.unwrap())
+        } else if matches!(self.angler_ai.state(), AnglerAiState::Loading) {
+            Timeout::Duration(angler_ai::SPINNER_INTERVAL)
+        } else {
+            Timeout::Forever
+        }
+    }
+
+    fn timeout_elapsed(&mut self) -> CharEvent {
+        if self.is_blocked_querying() {
+            CharEvent::QueryResult(crate::input_common::QueryResultEvent::Timeout)
+        } else {
+            CharEvent::from_readline(ReadlineCmd::Repaint)
+        }
     }
 
     fn prepare_to_select(&mut self) {
